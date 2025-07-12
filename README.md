@@ -16,7 +16,6 @@
 * [⚡ How It Works](#-how-it-works)
 * [🗂️ File Structure](#️-file-structure)
 * [🚀 Usage](#-usage)
-* [🤝 Contributing](#-contributing)
 * [🪪 License](#-license)
 
 ---
