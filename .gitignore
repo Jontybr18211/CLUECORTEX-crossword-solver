@@ -35,3 +35,7 @@ Thumbs.db
 Lib/
 
 .venv/
+
+# Ignore specific files
+suggested upgrades.py
+ai researchs.txt
