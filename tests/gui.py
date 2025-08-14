@@ -1,4 +1,7 @@
-# cluecortex_pyqt6_gui_professional.py
+# gui.py
+# ClueCortex - updated GUI with attractive single-click theme toggle button,
+# larger title heading, and fixed GitHub about link.
+
 import sys
 import re
 import webbrowser
@@ -26,7 +29,7 @@ class ThemeManager:
 
     @staticmethod
     def light_theme():
-        """A professional light theme with a cool blue accent."""
+        """A professional light theme with a cool blue accent and a stylish theme toggle button."""
         return f"""
         QMainWindow, QWidget {{
             background-color: #f0f0f0;
@@ -34,14 +37,14 @@ class ThemeManager:
             {ThemeManager._base_font_style()}
         }}
         QLabel#title {{
-            font-size: 24px;
-            font-weight: bold;
+            font-size: 32px;
+            font-weight: 700;
             color: #2980b9;
         }}
         QLineEdit {{
             background-color: #ffffff;
             border: 1px solid #bdc3c7;
-            border-radius: 4px;
+            border-radius: 6px;
             padding: 8px;
             color: #2c3e50;
         }}
@@ -52,7 +55,7 @@ class ThemeManager:
             background-color: #3498db;
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             padding: 10px 16px;
             font-weight: bold;
         }}
@@ -111,11 +114,30 @@ class ThemeManager:
         QScrollBar::handle:hover {{
             background: #95a5a6;
         }}
+
+        /* Stylish theme toggle button (light theme appearance) */
+        QPushButton#themeToggle {{
+            min-width: 56px;
+            max-width: 56px;
+            min-height: 28px;
+            border-radius: 14px;
+            padding: 2px;
+            background: light blue #33A1E0;
+            border: 1px solid #b6d8f6;
+        }}
+        QPushButton#themeToggle:checked {{
+            background: light blue #33A1E0;
+            border: 1px solid #f4b042;
+        }}
+        QPushButton#themeToggle QLabel {{
+            margin-left: 6px;
+            margin-right: 6px;
+        }}
         """
 
     @staticmethod
     def dark_theme():
-        """A stunning dark theme with a teal accent for high contrast."""
+        """A stunning dark theme with a teal accent for high contrast and updated theme toggle styling."""
         return f"""
         QMainWindow, QWidget {{
             background-color: #2c3e50;
@@ -123,14 +145,14 @@ class ThemeManager:
             {ThemeManager._base_font_style()}
         }}
         QLabel#title {{
-            font-size: 24px;
-            font-weight: bold;
+            font-size: 32px;
+            font-weight: 700;
             color: #1abc9c;
         }}
         QLineEdit {{
             background-color: #34495e;
             border: 1px solid #566573;
-            border-radius: 4px;
+            border-radius: 6px;
             padding: 8px;
             color: #ecf0f1;
         }}
@@ -141,7 +163,7 @@ class ThemeManager:
             background-color: #1abc9c;
             color: #2c3e50;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             padding: 10px 16px;
             font-weight: bold;
         }}
@@ -202,6 +224,23 @@ class ThemeManager:
         QScrollBar::handle:hover {{
             background: #7f8c8d;
         }}
+
+        /* Stylish theme toggle button (dark theme appearance) */
+        QPushButton#themeToggle {{
+            min-width: 56px;
+            max-width: 56px;
+            min-height: 28px;
+            border-radius: 14px;
+            padding: 2px;
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                                       stop:0 #3b5163, stop:1 #2b3e4b);
+            border: 1px solid #4b6a7a;
+        }}
+        QPushButton#themeToggle:checked {{
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                                       stop:0 #ffb347, stop:1 #ff8c42);
+            border: 1px solid #d18a3b;
+        }}
         """
 
 class ClueCortexWindow(QMainWindow):
@@ -228,11 +267,39 @@ class ClueCortexWindow(QMainWindow):
         main_layout.setContentsMargins(20, 20, 20, 20)
         main_layout.setSpacing(15)
 
-        # Title Label
+        # Title area with attractive single-click toggle theme button
+        title_layout = QHBoxLayout()
+        title_layout.setContentsMargins(0, 0, 0, 0)
+
+        # Title Label (made larger per request)
         title_label = QLabel("ClueCortex")
         title_label.setObjectName("title")
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        main_layout.addWidget(title_label)
+
+        # Theme toggle button - single click toggles between light and dark.
+        self.theme_toggle_button = QPushButton()
+        self.theme_toggle_button.setObjectName("themeToggle")
+        self.theme_toggle_button.setCheckable(True)
+        self.theme_toggle_button.setChecked(self.dark_mode)
+        self.theme_toggle_button.setToolTip("Toggle Light / Dark Theme")
+        # Set icons if available in system theme; fallback to simple text
+        light_icon = QIcon.fromTheme("weather-clear")  # sun-like
+        dark_icon = QIcon.fromTheme("weather-night")  # moon-like
+        if not light_icon.isNull() and not dark_icon.isNull():
+            self._light_icon = light_icon
+            self._dark_icon = dark_icon
+            self.theme_toggle_button.setIcon(self._light_icon if not self.dark_mode else self._dark_icon)
+        else:
+            # Use text fallback (keeps button attractive via stylesheet)
+            self.theme_toggle_button.setText("☀︎" if not self.dark_mode else "☾")
+
+        self.theme_toggle_button.clicked.connect(self.toggle_theme)
+
+        # Layout arrangement: title expands, toggle sits to the right
+        title_layout.addWidget(title_label, stretch=1)
+        title_layout.addWidget(self.theme_toggle_button, stretch=0, alignment=Qt.AlignmentFlag.AlignRight)
+
+        main_layout.addLayout(title_layout)
 
         # --- Input Section ---
         input_form_layout = QFormLayout()
@@ -286,17 +353,10 @@ class ClueCortexWindow(QMainWindow):
 
         main_layout.addLayout(button_layout)
 
-
     def create_menu_bar(self):
         menu_bar = self.menuBar()
 
-        # --- Theme Menu ---
-        theme_menu = QMenu("Theme", self)
-        toggle_action = QAction(QIcon.fromTheme("preferences-desktop-theme"), "Toggle Light/Dark Mode", self)
-        toggle_action.triggered.connect(self.toggle_theme)
-        theme_menu.addAction(toggle_action)
-
-        # --- Help Menu ---
+        # Keep Help menu (About & User Guide)
         help_menu = QMenu("Help", self)
         help_action = QAction(QIcon.fromTheme("help-contents"), "User Guide", self)
         help_action.triggered.connect(self.show_help)
@@ -305,7 +365,6 @@ class ClueCortexWindow(QMainWindow):
         help_menu.addAction(help_action)
         help_menu.addAction(about_action)
 
-        menu_bar.addMenu(theme_menu)
         menu_bar.addMenu(help_menu)
 
     def solve(self):
@@ -314,12 +373,12 @@ class ClueCortexWindow(QMainWindow):
         if not clue or not pattern:
             QMessageBox.warning(self, "Input Error", "Please enter both a clue and a pattern.")
             return
-            
+
         try:
             results = self.solver.solve(clue, pattern)
             ranked_list = results.get((clue, pattern.upper()), [])
             self.table.setRowCount(0)  # Clear previous results
-            
+
             if not ranked_list:
                 QMessageBox.information(self, "No Results", "No matching words found for the given clue and pattern.")
                 return
@@ -329,7 +388,7 @@ class ClueCortexWindow(QMainWindow):
                 self.table.setItem(row_idx, 0, QTableWidgetItem(word))
                 self.table.setItem(row_idx, 1, QTableWidgetItem(f"{score:.2f}"))
                 self.table.setItem(row_idx, 2, QTableWidgetItem(definition))
-            
+
             self.table.resizeColumnsToContents()
             self.table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
 
@@ -340,7 +399,7 @@ class ClueCortexWindow(QMainWindow):
         if self.table.currentRow() < 0:
             QMessageBox.warning(self, "Selection Error", "Please select a word from the table first.")
             return
-        
+
         selected_row = self.table.currentRow()
         word = self.table.item(selected_row, 0).text()
         clue = self.clue_input.text().strip()
@@ -362,7 +421,7 @@ class ClueCortexWindow(QMainWindow):
         correct_word, ok = QInputDialog.getText(self, "Enter Correct Word", "Correct word:")
         if ok and correct_word:
             correct_word = correct_word.strip().upper()
-            
+
             # Simple validation against the pattern
             if not re.match(self.solver.pattern_to_regex(pattern), correct_word):
                 QMessageBox.critical(self, "Pattern Mismatch", f"The word '{correct_word}' does not match the pattern '{pattern}'.")
@@ -376,11 +435,24 @@ class ClueCortexWindow(QMainWindow):
                 QMessageBox.critical(self, "Save Error", f"Could not save feedback: {e}")
 
     def toggle_theme(self):
+        """
+        Toggle between light and dark themes. This is wired to the single-click theme toggle button.
+        The button's checked state and icon/text will reflect the theme.
+        """
         self.dark_mode = not self.dark_mode
+        # Apply theme stylesheet
         if self.dark_mode:
             self.setStyleSheet(ThemeManager.dark_theme())
         else:
             self.setStyleSheet(ThemeManager.light_theme())
+
+        # Update toggle button checked state and icon/text
+        self.theme_toggle_button.setChecked(self.dark_mode)
+        if hasattr(self, "_light_icon") and hasattr(self, "_dark_icon"):
+            self.theme_toggle_button.setIcon(self._dark_icon if self.dark_mode else self._light_icon)
+            self.theme_toggle_button.setText("")  # no text when icons available
+        else:
+            self.theme_toggle_button.setText("☾" if self.dark_mode else "☀︎")
 
     def show_help(self):
         QMessageBox.information(self, "User Guide", (
@@ -401,16 +473,20 @@ class ClueCortexWindow(QMainWindow):
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
         )
         if reply == QMessageBox.StandardButton.Yes:
-            webbrowser.open("https://github.com/google/gemini-api")  # Example URL
-
+            # Updated to the correct GitHub repository link provided
+            webbrowser.open("https://github.com/Jontybr18211/CLUECORTEX-crossword-solver")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     try:
-        # Initialize solver (WordNet is used internally now)
+        # Initialize solver (WordNet is used internally by logic.py)
         solver = CrosswordSolver(feedback_file="feedback.json")
         window = ClueCortexWindow(solver)
         window.show()
         sys.exit(app.exec())
     except Exception as e:
-        QMessageBox.critical(None, "Startup Error", f"An unexpected error occurred: {e}")
+        # Use a message box only if a QApplication exists; fall back to printing if not.
+        try:
+            QMessageBox.critical(None, "Startup Error", f"An unexpected error occurred: {e}")
+        except Exception:
+            print(f"Startup Error: {e}")
