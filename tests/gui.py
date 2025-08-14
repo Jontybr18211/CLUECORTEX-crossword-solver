@@ -1,3 +1,4 @@
+# cluecortex_pyqt6_gui_professional.py
 import sys
 import re
 import webbrowser
@@ -8,7 +9,10 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont, QAction, QIcon
-from solver_logic import CrosswordSolver
+
+# Use the logic module provided in this project
+from logic import CrosswordSolver
+
 
 class ThemeManager:
     """
@@ -314,7 +318,7 @@ class ClueCortexWindow(QMainWindow):
         try:
             results = self.solver.solve(clue, pattern)
             ranked_list = results.get((clue, pattern.upper()), [])
-            self.table.setRowCount(0) # Clear previous results
+            self.table.setRowCount(0)  # Clear previous results
             
             if not ranked_list:
                 QMessageBox.information(self, "No Results", "No matching words found for the given clue and pattern.")
@@ -342,8 +346,11 @@ class ClueCortexWindow(QMainWindow):
         clue = self.clue_input.text().strip()
         pattern = self.pattern_input.text().strip().upper()
 
-        self.solver.save_feedback(clue, pattern, word)
-        QMessageBox.information(self, "Feedback Saved", f"Thank you! The word '{word}' was saved as a correct answer for the clue.")
+        try:
+            self.solver.save_feedback(clue, pattern, word)
+            QMessageBox.information(self, "Feedback Saved", f"Thank you! The word '{word}' was saved as a correct answer for the clue.")
+        except Exception as e:
+            QMessageBox.critical(self, "Save Error", f"Could not save feedback: {e}")
 
     def enter_correct_word(self):
         clue = self.clue_input.text().strip()
@@ -361,9 +368,12 @@ class ClueCortexWindow(QMainWindow):
                 QMessageBox.critical(self, "Pattern Mismatch", f"The word '{correct_word}' does not match the pattern '{pattern}'.")
                 return
 
-            self.solver.save_feedback(clue, pattern, correct_word)
-            QMessageBox.information(self, "Feedback Saved", f"Thank you! The word '{correct_word}' has been saved.")
-            self.solve() # Optionally re-solve to see updated scores
+            try:
+                self.solver.save_feedback(clue, pattern, correct_word)
+                QMessageBox.information(self, "Feedback Saved", f"Thank you! The word '{correct_word}' has been saved.")
+                self.solve()  # Optionally re-solve to see updated scores
+            except Exception as e:
+                QMessageBox.critical(self, "Save Error", f"Could not save feedback: {e}")
 
     def toggle_theme(self):
         self.dark_mode = not self.dark_mode
@@ -391,21 +401,16 @@ class ClueCortexWindow(QMainWindow):
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
         )
         if reply == QMessageBox.StandardButton.Yes:
-            webbrowser.open("https://github.com/google/gemini-api") # Example URL
+            webbrowser.open("https://github.com/google/gemini-api")  # Example URL
 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     try:
-        # Ensure 'words.txt' and 'feedback.json' (if it exists) are in the same directory
-        # Or provide the full path to the files.
-        solver = CrosswordSolver("words.txt", "feedback.json")
+        # Initialize solver (WordNet is used internally now)
+        solver = CrosswordSolver(feedback_file="feedback.json")
         window = ClueCortexWindow(solver)
         window.show()
         sys.exit(app.exec())
-    except FileNotFoundError as e:
-        QMessageBox.critical(None, "Startup Error", 
-            f"A required file could not be found: {e}.\n"
-            "Please make sure 'words.txt' is in the same directory as the application.")
     except Exception as e:
         QMessageBox.critical(None, "Startup Error", f"An unexpected error occurred: {e}")

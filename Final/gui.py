@@ -406,7 +406,7 @@ if __name__ == "__main__":
         window.show()
         sys.exit(app.exec())
     except FileNotFoundError as e:
-        QMessageBox.critical(None, "Startup Error", 
+        QMessageBox.critical(None, "Startup Error",
             f"A required file could not be found: {e}.\n"
             "Please make sure 'words.txt' is in the same directory as the application.")
     except Exception as e:
