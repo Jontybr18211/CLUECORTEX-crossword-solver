@@ -1,7 +1,3 @@
-# gui.py
-# ClueCortex - updated GUI with attractive single-click theme toggle button,
-# larger title heading, and fixed GitHub about link.
-
 import sys
 import re
 import webbrowser
