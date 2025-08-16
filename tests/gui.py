@@ -12,7 +12,6 @@ from PyQt6.QtGui import QFont, QAction, QIcon
 # Use the logic module provided in this project
 from logic import CrosswordSolver
 
-
 class ThemeManager:
     """
     A class to manage the professional themes for the application.
