@@ -8,8 +8,6 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont, QAction, QIcon
-
-# Use the logic module provided in this project
 from logic import CrosswordSolver
 
 class ThemeManager:
@@ -365,8 +363,9 @@ class ClueCortexWindow(QMainWindow):
     def solve(self):
         clue = self.clue_input.text().strip()
         pattern = self.pattern_input.text().strip().upper()
-        if not clue or not pattern:
-            QMessageBox.warning(self, "Input Error", "Please enter both a clue and a pattern.")
+        # Allow solving when at least one of clue or pattern is provided.
+        if not clue and not pattern:
+            QMessageBox.warning(self, "Input Error", "Please enter at least a clue or a pattern.")
             return
 
         try:
@@ -409,16 +408,17 @@ class ClueCortexWindow(QMainWindow):
     def enter_correct_word(self):
         clue = self.clue_input.text().strip()
         pattern = self.pattern_input.text().strip().upper()
-        if not clue or not pattern:
-            QMessageBox.warning(self, "Input Error", "Please enter the original clue and pattern before providing a manual answer.")
+        # Require at least a clue or a pattern to provide context for the manual answer
+        if not clue and not pattern:
+            QMessageBox.warning(self, "Input Error", "Please enter the original clue or pattern before providing a manual answer.")
             return
 
         correct_word, ok = QInputDialog.getText(self, "Enter Correct Word", "Correct word:")
         if ok and correct_word:
             correct_word = correct_word.strip().upper()
 
-            # Simple validation against the pattern
-            if not re.match(self.solver.pattern_to_regex(pattern), correct_word):
+            # Simple validation against the pattern (if a pattern exists)
+            if pattern and not re.match(self.solver.pattern_to_regex(pattern), correct_word):
                 QMessageBox.critical(self, "Pattern Mismatch", f"The word '{correct_word}' does not match the pattern '{pattern}'.")
                 return
 
@@ -452,8 +452,8 @@ class ClueCortexWindow(QMainWindow):
     def show_help(self):
         QMessageBox.information(self, "User Guide", (
             "<h3>How to Use ClueCortex</h3>"
-            "<p><b>1. Enter Clue:</b> Type the crossword clue into the 'Clue' field.</p>"
-            "<p><b>2. Enter Pattern:</b> Type the known letters of the word in the 'Pattern' field. Use a question mark (?) for unknown letters (e.g., C?T).</p>"
+            "<p><b>1. Enter Clue:</b> Type the crossword clue into the 'Clue' field (optional if you supply a pattern).</p>"
+            "<p><b>2. Enter Pattern:</b> Type the known letters of the word in the 'Pattern' field. Use a question mark (?) for unknown letters (e.g., C?T). You may provide a pattern without a clue.</p>"
             "<p><b>3. Solve:</b> Click the 'Solve' button to see a list of potential answers ranked by relevance.</p>"
             "<p><b>4. Save Feedback:</b> If you find the correct answer in the list, select it and click 'Save as Correct' to help improve the solver.</p>"
             "<p><b>5. Manual Entry:</b> If the answer isn't in the list, you can add it by clicking 'Enter Manual Answer'.</p>"
