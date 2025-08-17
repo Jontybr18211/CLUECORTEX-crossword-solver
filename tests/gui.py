@@ -4,10 +4,10 @@ import webbrowser
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QLabel, QPushButton, QLineEdit,
     QVBoxLayout, QHBoxLayout, QTableWidget, QTableWidgetItem, QMessageBox,
-    QInputDialog, QMenuBar, QMenu, QFormLayout, QHeaderView
+    QInputDialog, QMenu, QFormLayout, QHeaderView
 )
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QFont, QAction, QIcon
+from PyQt6.QtGui import QAction, QIcon
 from logic import CrosswordSolver
 
 class ThemeManager:
@@ -115,11 +115,11 @@ class ThemeManager:
             min-height: 28px;
             border-radius: 14px;
             padding: 2px;
-            background: light blue #33A1E0;
+            background: #33A1E0;
             border: 1px solid #b6d8f6;
         }}
         QPushButton#themeToggle:checked {{
-            background: light blue #33A1E0;
+            background: #33A1E0;
             border: 1px solid #f4b042;
         }}
         QPushButton#themeToggle QLabel {{
@@ -326,6 +326,8 @@ class ClueCortexWindow(QMainWindow):
         self.table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
         self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        # Restrict to single selection to avoid ambiguity when saving feedback.
+        self.table.setSelectionMode(QTableWidget.SelectionMode.SingleSelection)
         main_layout.addWidget(self.table)
 
         # --- Feedback Buttons ---
@@ -362,14 +364,19 @@ class ClueCortexWindow(QMainWindow):
 
     def solve(self):
         clue = self.clue_input.text().strip()
-        pattern = self.pattern_input.text().strip().upper()
+        # Normalize pattern: remove internal whitespace and uppercase
+        pattern = ''.join(self.pattern_input.text().strip().split()).upper()
         # Allow solving when at least one of clue or pattern is provided.
         if not clue and not pattern:
             QMessageBox.warning(self, "Input Error", "Please enter at least a clue or a pattern.")
             return
 
         try:
+            # show simple status feedback while solving
+            self.statusBar().showMessage("Searching...")
             results = self.solver.solve(clue, pattern)
+            self.statusBar().clearMessage()
+
             ranked_list = results.get((clue, pattern.upper()), [])
             self.table.setRowCount(0)  # Clear previous results
 
@@ -380,13 +387,23 @@ class ClueCortexWindow(QMainWindow):
             for row_idx, (word, score, definition) in enumerate(ranked_list):
                 self.table.insertRow(row_idx)
                 self.table.setItem(row_idx, 0, QTableWidgetItem(word))
-                self.table.setItem(row_idx, 1, QTableWidgetItem(f"{score:.2f}"))
+                # score should be numeric; format safely in case it's not
+                try:
+                    score_text = f"{float(score):.2f}"
+                except Exception:
+                    score_text = str(score)
+                self.table.setItem(row_idx, 1, QTableWidgetItem(score_text))
                 self.table.setItem(row_idx, 2, QTableWidgetItem(definition))
 
             self.table.resizeColumnsToContents()
             self.table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
 
         except Exception as e:
+            # Ensure status cleared on error
+            try:
+                self.statusBar().clearMessage()
+            except Exception:
+                pass
             QMessageBox.critical(self, "Solver Error", f"An error occurred during solving: {e}")
 
     def save_feedback(self):
@@ -397,7 +414,7 @@ class ClueCortexWindow(QMainWindow):
         selected_row = self.table.currentRow()
         word = self.table.item(selected_row, 0).text()
         clue = self.clue_input.text().strip()
-        pattern = self.pattern_input.text().strip().upper()
+        pattern = ''.join(self.pattern_input.text().strip().split()).upper()
 
         try:
             self.solver.save_feedback(clue, pattern, word)
@@ -407,7 +424,7 @@ class ClueCortexWindow(QMainWindow):
 
     def enter_correct_word(self):
         clue = self.clue_input.text().strip()
-        pattern = self.pattern_input.text().strip().upper()
+        pattern = ''.join(self.pattern_input.text().strip().split()).upper()
         # Require at least a clue or a pattern to provide context for the manual answer
         if not clue and not pattern:
             QMessageBox.warning(self, "Input Error", "Please enter the original clue or pattern before providing a manual answer.")
