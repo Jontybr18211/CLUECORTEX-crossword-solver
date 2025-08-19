@@ -7,3 +7,6 @@ en_core_web_md @ https://github.com/explosion/spacy-models/releases/download/en_
 PyQt6
 nltk
 >>>>>>> 0c2082be5f1b9e4fac4a900597283cc1bb6c3d31
+collections
+functools
+typing
