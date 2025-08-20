@@ -24,11 +24,11 @@ except LookupError:
 class CrosswordSolver:
     """
     Improved Crossword solver:
-      - fixed unreachable code in find_matches (POS pruning now runs)
-      - normalized synset lookups to lowercase to make caching effective
-      - use lemma_names() and definitions for meaningful semantic tokens
-      - filter tokenization to alphabetic tokens
-      - safer handling of empty / wildcard patterns
+    - fixed unreachable code in find_matches (POS pruning now runs)
+    - normalized synset lookups to lowercase to make caching effective
+    - use lemma_names() and definitions for meaningful semantic tokens
+    - filter tokenization to alphabetic tokens
+    - safer handling of empty / wildcard patterns
     """
 
     def __init__(self, feedback_file: str = "feedback.json", min_word_len: int = 2, max_word_len: int = 15):
@@ -196,9 +196,9 @@ class CrosswordSolver:
     def _wordnet_ranking(self, clue: str, matches: List[str]) -> List[Tuple[str, float, str]]:
         """
         Improved ranking:
-         - use alpha-only lemmatized clue tokens
-         - compare with lemma_names() from synsets and hypernyms via lemma names
-         - produce stable scores; higher is better
+        - use alpha-only lemmatized clue tokens
+        - compare with lemma_names() from synsets and hypernyms via lemma names
+        - produce stable scores; higher is better
         """
         # Prepare clue words: alpha-only, lemmatized
         clue_tokens = [t.lower() for t in word_tokenize(clue) if t.isalpha()]
