@@ -3,7 +3,7 @@
 
 # 🧠 ClueCortex - Crossword Solver
 
-**ClueCortex** is an advanced, user-friendly crossword puzzle solver built using Python and PyQt6. It assists users in solving crossword clues by taking a clue and a letter pattern as input, generating word suggestions ranked by semantic relevance using NLTK’s WordNet, and integrating a feedback system to enhance results over time. The elegant GUI supports both light and dark themes, making the experience both functional and visually appealing.
+**ClueCortex** is an advanced, user-friendly crossword puzzle solver built using Python and PyQt6. It assists users in solving crossword clues by taking a clue and a letter pattern as input, generating word suggestions ranked by semantic relevance and part-of-speech (POS) tagging to filter candidate words based on the clue using NLTK’s WordNet, and integrating a feedback system to enhance results over time. The elegant GUI supports both light and dark themes, making the experience both functional and visually appealing.
 
 ---
 
