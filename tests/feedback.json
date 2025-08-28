@@ -6,5 +6,6 @@
     "('sweet fruit', '??PL?')": "APPLE",
     "('sweet fruit', 'MA???')": "MANGO",
     "('a tool help vision', '???CTAC??')": "SPECTACLE",
-    "('a person who commits murder', '??SA??IN')": "ASSASSIN"
+    "('a person who commits murder', '??SA??IN')": "ASSASSIN",
+    "('a mixed feeling of sorrow and joy', '??LAN??OL?')": "MELANCHOLY"
 }

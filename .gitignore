@@ -40,3 +40,5 @@ Lib/
 suggested upgrades.py
 ai researchs.txt
 7.0.0
+test.py
+tests/
