@@ -226,12 +226,12 @@ class ThemeManager:
             border-radius: 14px;
             padding: 2px;
             background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                                       stop:0 #3b5163, stop:1 #2b3e4b);
+                                    stop:0 #3b5163, stop:1 #2b3e4b);
             border: 1px solid #4b6a7a;
         }}
         QPushButton#themeToggle:checked {{
             background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                                       stop:0 #ffb347, stop:1 #ff8c42);
+                                    stop:0 #ffb347, stop:1 #ff8c42);
             border: 1px solid #d18a3b;
         }}
         """
