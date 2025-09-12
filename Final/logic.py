@@ -24,8 +24,6 @@ class CrosswordSolver:
 
         # Build master word list from WordNet lemmas
         self.word_list: List[str] = self._build_word_list_from_wordnet(min_word_len, max_word_len)
-        if not self.word_list:
-            raise RuntimeError("WordNet-based word list could not be created.")
 
         # Create indexes for fast, non-regex searching
         self.by_len: Dict[int, List[str]] = defaultdict(list)
